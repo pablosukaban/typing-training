@@ -1,20 +1,32 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
+const BASE_URL = 'https://fish-text.ru/';
+const FORMAT = 'json';
+const NUMBER = 3;
+const PARAMS = `get?format=${FORMAT}&number=${NUMBER}`;
+
+type ResponseJSONType = {
+    status: string;
+    text: string;
+    errorCode?: string;
+};
+
 const App = () => {
-    const TEXT = '123 456 789';
+    const [mainText, setMainText] = useState('');
 
     const [inputValue, setInputValue] = useState('');
     const [correctValue, setCorrectValue] = useState('');
-    const [newText, setNewText] = useState(TEXT);
+    const [newText, setNewText] = useState('');
     const [lastWord, setLastWord] = useState('');
 
     const inputValueLengthRef = useRef(0);
+    const inputValueRef = useRef<HTMLInputElement>(null);
 
-    const isError = inputValue !== TEXT.slice(0, inputValue.length);
+    const isError = inputValue !== mainText.slice(0, inputValue.length);
 
-    console.log('input', inputValue);
-    console.log('correct', correctValue);
-    console.log('newText', newText);
+    // console.log('input', inputValue);
+    // console.log('correct', correctValue);
+    // console.log('newText', newText);
     // console.log(inputValueLengthRef.current);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +34,28 @@ const App = () => {
     };
 
     useEffect(() => {
+        let ignore = false;
+
+        const fetchText = async (url: string) => {
+            const response = await fetch(url);
+            const json: ResponseJSONType = await response.json();
+
+            if (!ignore) {
+                setMainText(json.text);
+                setNewText(json.text);
+            }
+        };
+
+        fetchText(BASE_URL + PARAMS);
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
+
+    useEffect(() => {
         setLastWord(inputValue);
+        inputValueRef.current?.focus();
 
         if (inputValue.length === 0) {
             setCorrectValue('');
@@ -47,9 +80,10 @@ const App = () => {
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-gray-800 text-white">
-            <div className="w-[500px] p-8">
+            <div className="w-fit max-w-3xl p-8">
                 <input
                     type={'text'}
+                    ref={inputValueRef}
                     className="w-full border border-white py-2 px-4 bg-gray-800 text-white text-lg"
                     value={inputValue}
                     onChange={handleChange}
