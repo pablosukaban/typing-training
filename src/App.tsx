@@ -1,18 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-// import './App.css';
-
-//  TEXT = 123456
-//  ввел 1, inputValue= 1, correct - 1, newText = 23456
-//  ввел 2, inputValue= 12,  correct - 12, newText = 3456
-//  ввел ш, inputValue= 12ш, correct - 12, newText = 456, error - true
-//  удалил ш, inputValue=12, correct - 12, newText = 56, error - false
-//
-//
-//
-//
-//
-
-// TODO при удалении правильного символа, не изменять newText
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 const App = () => {
     const TEXT = '123 456 789';
@@ -20,28 +6,43 @@ const App = () => {
     const [inputValue, setInputValue] = useState('');
     const [correctValue, setCorrectValue] = useState('');
     const [newText, setNewText] = useState(TEXT);
-    const [isError, setIsError] = useState(false);
+    const [lastWord, setLastWord] = useState('');
+
+    const inputValueLengthRef = useRef(0);
+
+    const isError = inputValue !== TEXT.slice(0, inputValue.length);
 
     console.log('input', inputValue);
     console.log('correct', correctValue);
     console.log('newText', newText);
+    // console.log(inputValueLengthRef.current);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
     };
 
     useEffect(() => {
-        if (inputValue.length === 0) return;
+        setLastWord(inputValue);
+
+        if (inputValue.length === 0) {
+            setCorrectValue('');
+            setNewText((prev) => lastWord + prev);
+            return;
+        }
 
         if (inputValue === correctValue) return;
 
-        if (inputValue === TEXT.slice(0, inputValue.length)) {
-            setCorrectValue(inputValue);
+        if (isError) return;
+
+        setCorrectValue(inputValue);
+
+        if (inputValue.length >= inputValueLengthRef.current) {
             setNewText((prev) => prev.slice(1));
-            setIsError(false);
         } else {
-            setIsError(true);
+            setNewText((prev) => lastWord[lastWord.length - 1] + prev);
         }
+
+        inputValueLengthRef.current = inputValue.length;
     }, [inputValue]);
 
     return (
@@ -54,8 +55,8 @@ const App = () => {
                     onChange={handleChange}
                 />
                 <p className="text-2xl">
-                    <span className="text-purple-300">{correctValue}</span>
-                    <span style={{ color: isError ? 'red' : '' }}>
+                    <span className="text-indigo-300">{correctValue}</span>
+                    <span className={`${isError && 'text-red-400'}`}>
                         {newText}
                     </span>
                 </p>
