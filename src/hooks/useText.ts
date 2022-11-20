@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { wordObjType } from '../components/SecondMonkey';
 
 export const useText = (text: string, isStrictMode: boolean) => {
-    const wordList = text.split(' ').slice(1);
+    const wordList = text.split(' ');
     const charList = wordList.map((word) =>
         word.split('').map((char) => {
             const newObj: wordObjType = { text: char, correct: null };
             return newObj;
         })
     );
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [currentWord, setCurrentWord] = useState(charList[currentWordIndex]);
+    // const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    const currentWordIndexRef = useRef(0);
+    const [currentWord, setCurrentWord] = useState(charList[0]);
     const [resultList, setResultList] = useState<wordObjType[][]>([]);
-    const leftList = charList.slice(currentWordIndex + 1);
+
+    const leftList = charList.slice(currentWordIndexRef.current + 1);
 
     const nextWord = () => {
         if (isStrictMode === true) {
@@ -20,18 +22,21 @@ export const useText = (text: string, isStrictMode: boolean) => {
                 currentWord.filter((item) => item.correct).length ===
                 currentWord.length
             ) {
-                setCurrentWordIndex((prev) => prev + 1);
                 setResultList((prev) => [...prev, currentWord]);
+                currentWordIndexRef.current += 1;
+                setCurrentWord(charList[currentWordIndexRef.current]);
             } else {
                 return;
             }
         } else {
-            setCurrentWordIndex((prev) => prev + 1);
             setResultList((prev) => [...prev, currentWord]);
+            currentWordIndexRef.current += 1;
+            setCurrentWord(charList[currentWordIndexRef.current]);
         }
     };
 
     const changeAddWord = (givenChar: string, idx: number) => {
+        // if (idx > currentWord.length) return;
         const newWord = currentWord.map((item) => {
             if (currentWord.indexOf(item) === idx) {
                 if (item.text === givenChar) {
@@ -57,9 +62,9 @@ export const useText = (text: string, isStrictMode: boolean) => {
         setCurrentWord(newWord);
     };
 
-    useEffect(() => {
-        setCurrentWord(charList[currentWordIndex]);
-    }, [currentWordIndex]);
+    // useEffect(() => {
+    //     setCurrentWord(charList[currentWordIndexRef.current]);
+    // }, [currentWordIndexRef.current]);
 
     return {
         isError: false,
@@ -69,5 +74,6 @@ export const useText = (text: string, isStrictMode: boolean) => {
         nextWord,
         changeAddWord,
         chageDeleteWord,
+        wordIndex: currentWordIndexRef.current,
     };
 };

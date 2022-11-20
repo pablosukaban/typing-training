@@ -1,8 +1,7 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
 
-const example =
-    ' Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero mollitia autem veniam in iure!';
+const example = 'Немного здравого смысла';
 
 export type wordObjType = {
     text: string;
@@ -54,7 +53,7 @@ const WordElement = ({ word, idx }: WordElementProps) => {
 export const SecondMonkey = () => {
     const divRef = useRef<HTMLDivElement>(null);
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
-    const [isStrictMode, setIsStrictMode] = useState(false);
+    const [isStrictMode, setIsStrictMode] = useState(true);
 
     const {
         nextWord,
@@ -63,6 +62,7 @@ export const SecondMonkey = () => {
         chageDeleteWord,
         resultList,
         leftList,
+        wordIndex,
     } = useText(example, isStrictMode);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -71,12 +71,13 @@ export const SecondMonkey = () => {
 
         if (code === 'Space') {
             if (currentWord.some((letter) => letter.correct === null)) return;
+            if (wordIndex === example.split(' ').length - 1) return;
             nextWord();
             setCurrentCharIndex(0);
         } else if (code === 'Backspace') {
             chageDeleteWord(currentCharIndex - 1);
             setCurrentCharIndex((prev) => prev - 1);
-        } else if (key.length === 1 && key.match(/[a-z]/i)) {
+        } else if (key.length === 1 && key.match(/[а-я А-Я ,.?!"-;']/i)) {
             if (currentCharIndex >= currentWord.length) return;
             changeAddWord(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
@@ -88,6 +89,12 @@ export const SecondMonkey = () => {
 
         divRef.current.focus();
     }, []);
+
+    // console.log(resultList);
+    // console.log(currentWord);
+    // console.log(leftList);
+
+    console.log(wordIndex);
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-green-900 ">
