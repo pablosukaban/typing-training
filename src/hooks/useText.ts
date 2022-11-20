@@ -3,16 +3,16 @@ import { wordObjType } from '../components/SecondMonkey';
 
 export const useText = (text: string, isStrictMode: boolean) => {
     const wordList = text.split(' ').slice(1);
-    const [charList, setCharList] = useState(
-        wordList.map((word) =>
-            word.split('').map((char) => {
-                const newObj: wordObjType = { text: char, correct: null };
-                return newObj;
-            })
-        )
+    const charList = wordList.map((word) =>
+        word.split('').map((char) => {
+            const newObj: wordObjType = { text: char, correct: null };
+            return newObj;
+        })
     );
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [currentWord, setCurrentWord] = useState(charList[currentWordIndex]);
+    const [resultList, setResultList] = useState<wordObjType[][]>([]);
+    const leftList = charList.slice(currentWordIndex + 1);
 
     const nextWord = () => {
         if (isStrictMode === true) {
@@ -21,11 +21,13 @@ export const useText = (text: string, isStrictMode: boolean) => {
                 currentWord.length
             ) {
                 setCurrentWordIndex((prev) => prev + 1);
+                setResultList((prev) => [...prev, currentWord]);
             } else {
                 return;
             }
         } else {
             setCurrentWordIndex((prev) => prev + 1);
+            setResultList((prev) => [...prev, currentWord]);
         }
     };
 
@@ -59,13 +61,13 @@ export const useText = (text: string, isStrictMode: boolean) => {
         setCurrentWord(charList[currentWordIndex]);
     }, [currentWordIndex]);
 
-    console.log(currentWord);
-
     return {
         isError: false,
-        changeWord: changeAddWord,
+        resultList,
         currentWord,
+        leftList,
         nextWord,
+        changeAddWord,
         chageDeleteWord,
     };
 };
