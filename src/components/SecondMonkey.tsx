@@ -3,8 +3,6 @@ import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 const example =
     ' Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero mollitia autem veniam in iure!';
 
-// * Меняю curerntWord? Нажмаю L,
-
 type wordObj = {
     text: string;
     correct: boolean | null;
@@ -27,7 +25,7 @@ const CharElement = ({ char, correct }: CharElementProps) => {
     return <span className={`${color}`}>{char}</span>;
 };
 
-const useText = (text: string, inputValue: string) => {
+const useText = (text: string) => {
     const wordList = text.split(' ').slice(1);
     const [charList, setCharList] = useState(
         wordList.map((word) =>
@@ -44,7 +42,7 @@ const useText = (text: string, inputValue: string) => {
         setCurrentWordIndex((prev) => prev + 1);
     };
 
-    const changeWord = (givenChar: string, idx: number) => {
+    const changeAddWord = (givenChar: string, idx: number) => {
         const newWord = currentWord.map((item) => {
             if (currentWord.indexOf(item) === idx) {
                 if (item.text === givenChar) {
@@ -59,43 +57,51 @@ const useText = (text: string, inputValue: string) => {
         setCurrentWord(newWord);
     };
 
+    const chageDeleteWord = (idx: number) => {
+        const newWord = currentWord.map((item) => {
+            if (currentWord.indexOf(item) === idx) {
+                return { text: item.text, correct: null } as wordObj;
+            } else {
+                return item;
+            }
+        });
+        setCurrentWord(newWord);
+    };
+
     useEffect(() => {
         setCurrentWord(charList[currentWordIndex]);
     }, [currentWordIndex]);
 
     return {
-        wordList,
-        nextWord,
         isError: false,
-        changeWord,
+        changeWord: changeAddWord,
         currentWord,
+        nextWord,
+        chageDeleteWord,
     };
 };
 
 export const SecondMonkey = () => {
-    const [inputValue, setInputValue] = useState('');
+    // const [inputValue, setInputValue] = useState('');
     const divRef = useRef<HTMLDivElement>(null);
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    const [currentCharIndex, setCurrentCharIndex] = useState(0);
 
-    const { isError, nextWord, wordList, changeWord, currentWord } = useText(
-        example,
-        inputValue
-    );
+    const { nextWord, changeWord, currentWord, chageDeleteWord } =
+        useText(example);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        if (event.key.length > 1) return;
-
-        if (event.key === 'Backspace') {
-            setInputValue((prev) => prev.slice(1));
-            setCurrentWordIndex((prev) => prev - 1);
-        } else if (event.code === 'Space') {
+        if (event.code === 'Space') {
             nextWord();
-            setCurrentWordIndex(0);
-        } else {
-            changeWord(event.key, currentWordIndex);
-            setCurrentWordIndex((prev) => prev + 1);
+            setCurrentCharIndex(0);
+        } else if (event.code === 'Backspace') {
+            chageDeleteWord(currentCharIndex - 1);
+            setCurrentCharIndex((prev) => prev - 1);
+            // setInputValue((prev) => prev.slice(0, prev.length - 1));
+        } else if (event.key.length === 1 && event.key.match(/[a-z]/i)) {
+            changeWord(event.key, currentCharIndex);
+            setCurrentCharIndex((prev) => prev + 1);
+            // setInputValue((prev) => prev + event.key);
         }
-        setInputValue((prev) => prev + event.key);
     };
 
     useEffect(() => {
@@ -104,10 +110,12 @@ export const SecondMonkey = () => {
         divRef.current.focus();
     }, []);
 
+    console.log(currentWord[0], currentWord[1]);
+
     return (
         <div className="min-h-screen flex justify-center items-center bg-green-900 ">
             <div
-                className="text-gray-300 text-3xl max-w-6xl focus:outline-none"
+                className="text-gray-400 text-3xl max-w-6xl focus:outline-none"
                 tabIndex={0}
                 onKeyDown={handleKeyDown}
                 ref={divRef}
@@ -119,7 +127,7 @@ export const SecondMonkey = () => {
                         <span key={index}>{item} </span>
                     ))}
                 </p> */}
-                <h2>
+                <span>
                     {currentWord.map((item, index) => (
                         <CharElement
                             key={index}
@@ -127,7 +135,7 @@ export const SecondMonkey = () => {
                             correct={item.correct}
                         />
                     ))}
-                </h2>
+                </span>
             </div>
         </div>
     );
