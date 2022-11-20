@@ -1,19 +1,21 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { useText } from '../hooks/useText';
 
 const example =
     ' Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero mollitia autem veniam in iure!';
 
-type wordObj = {
+export type wordObjType = {
     text: string;
     correct: boolean | null;
 };
 
 type CharElementProps = {
     char: string;
+    isActive: boolean;
     correct: boolean | null;
 };
 
-const CharElement = ({ char, correct }: CharElementProps) => {
+const CharElement = ({ char, correct, isActive }: CharElementProps) => {
     let color = '';
     if (correct === null) {
         color = '';
@@ -22,82 +24,34 @@ const CharElement = ({ char, correct }: CharElementProps) => {
     } else {
         color = 'text-red-300';
     }
-    return <span className={`${color}`}>{char}</span>;
-};
-
-const useText = (text: string) => {
-    const wordList = text.split(' ').slice(1);
-    const [charList, setCharList] = useState(
-        wordList.map((word) =>
-            word.split('').map((char) => {
-                const newObj: wordObj = { text: char, correct: null };
-                return newObj;
-            })
-        )
+    return (
+        <span className={`${color} ${isActive && 'activeLetter'}`}>{char}</span>
     );
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [currentWord, setCurrentWord] = useState(charList[currentWordIndex]);
-
-    const nextWord = () => {
-        setCurrentWordIndex((prev) => prev + 1);
-    };
-
-    const changeAddWord = (givenChar: string, idx: number) => {
-        const newWord = currentWord.map((item) => {
-            if (currentWord.indexOf(item) === idx) {
-                if (item.text === givenChar) {
-                    return { text: item.text, correct: true } as wordObj;
-                } else {
-                    return { text: item.text, correct: false } as wordObj;
-                }
-            } else {
-                return item;
-            }
-        });
-        setCurrentWord(newWord);
-    };
-
-    const chageDeleteWord = (idx: number) => {
-        const newWord = currentWord.map((item) => {
-            if (currentWord.indexOf(item) === idx) {
-                return { text: item.text, correct: null } as wordObj;
-            } else {
-                return item;
-            }
-        });
-        setCurrentWord(newWord);
-    };
-
-    useEffect(() => {
-        setCurrentWord(charList[currentWordIndex]);
-    }, [currentWordIndex]);
-
-    return {
-        isError: false,
-        changeWord: changeAddWord,
-        currentWord,
-        nextWord,
-        chageDeleteWord,
-    };
 };
 
 export const SecondMonkey = () => {
     // const [inputValue, setInputValue] = useState('');
     const divRef = useRef<HTMLDivElement>(null);
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
+    const [isStrictMode, setIsStrictMode] = useState(false);
 
-    const { nextWord, changeWord, currentWord, chageDeleteWord } =
-        useText(example);
+    const { nextWord, changeWord, currentWord, chageDeleteWord } = useText(
+        example,
+        isStrictMode
+    );
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        if (event.code === 'Space') {
+        const code = event.code;
+        const key = event.key;
+
+        if (code === 'Space') {
             nextWord();
             setCurrentCharIndex(0);
-        } else if (event.code === 'Backspace') {
+        } else if (code === 'Backspace') {
             chageDeleteWord(currentCharIndex - 1);
             setCurrentCharIndex((prev) => prev - 1);
             // setInputValue((prev) => prev.slice(0, prev.length - 1));
-        } else if (event.key.length === 1 && event.key.match(/[a-z]/i)) {
+        } else if (key.length === 1 && key.match(/[a-z]/i)) {
             changeWord(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
             // setInputValue((prev) => prev + event.key);
@@ -109,8 +63,6 @@ export const SecondMonkey = () => {
 
         divRef.current.focus();
     }, []);
-
-    console.log(currentWord[0], currentWord[1]);
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-green-900 ">
@@ -133,6 +85,7 @@ export const SecondMonkey = () => {
                             key={index}
                             char={item.text}
                             correct={item.correct}
+                            isActive={index === currentCharIndex}
                         />
                     ))}
                 </span>

@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-.correct-text {
+.activeLetter {
     position: relative;
 }
 
-.correct-text::after {
+.activeLetter::after {
     content: '';
     position: absolute;
-    right: 0;
+    left: 0;
     top: 50%;
     width: 2px;
     height: 80%;
