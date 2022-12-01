@@ -56,13 +56,13 @@ export const SecondMonkey = () => {
     const [isStrictMode, setIsStrictMode] = useState(true);
 
     const {
-        nextWord,
-        changeAddWord,
         currentWord,
-        chageDeleteWord,
+        wordIndex,
         resultList,
         leftList,
-        wordIndex,
+        nextWord,
+        changeAddWord,
+        chageDeleteWord,
     } = useText(example, isStrictMode);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -94,7 +94,7 @@ export const SecondMonkey = () => {
     // console.log(currentWord);
     // console.log(leftList);
 
-    console.log(wordIndex);
+    // console.log(wordIndex);
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-green-900 ">
