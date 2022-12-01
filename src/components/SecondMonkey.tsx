@@ -76,7 +76,7 @@ export const SecondMonkey = () => {
             setCurrentCharIndex(0);
         } else if (code === 'Backspace') {
             chageDeleteWord(currentCharIndex - 1);
-            setCurrentCharIndex((prev) => prev - 1);
+            setCurrentCharIndex((prev) => (prev === 0 ? prev : prev - 1));
         } else if (key.length === 1 && key.match(/[а-я А-Я ,.?!"-;']/i)) {
             if (currentCharIndex >= currentWord.length) return;
             changeAddWord(event.key, currentCharIndex);
@@ -89,6 +89,8 @@ export const SecondMonkey = () => {
 
         divRef.current.focus();
     }, []);
+
+    console.log(currentCharIndex);
 
     // console.log(resultList);
     // console.log(currentWord);
