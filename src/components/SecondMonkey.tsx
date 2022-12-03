@@ -25,6 +25,7 @@ export const SecondMonkey = () => {
     const [mainText, setMainText] = useState('');
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
     const [isStarted, setIsStarted] = useState(false);
+    const [isBlured, setIsBlured] = useState(false);
 
     const divRef = useRef<HTMLDivElement>(null);
 
@@ -60,8 +61,6 @@ export const SecondMonkey = () => {
         const code = event.code;
         const key = event.key;
 
-        if (!isStarted) setIsStarted(true);
-
         if (code === 'Space') {
             if (currentWord.some((letter) => letter.correct === null)) return;
             if (wordIndex === mainText.split(' ').length - 1) {
@@ -74,10 +73,20 @@ export const SecondMonkey = () => {
             chageDeleteWord(currentCharIndex - 1);
             setCurrentCharIndex((prev) => (prev === 0 ? prev : prev - 1));
         } else if (key.length === 1 && key.match(/[а-я А-Я ,.?!"-;']/i)) {
+            if (!isStarted) setIsStarted(true);
             if (currentCharIndex >= currentWord.length) return;
             changeAddWord(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
         }
+    };
+
+    const handleBlur = () => {
+        setIsBlured(true);
+    };
+
+    const handleFocus = () => {
+        setIsBlured(false);
+        focusOnText();
     };
 
     const focusOnText = () => {
@@ -115,19 +124,29 @@ export const SecondMonkey = () => {
 
     // console.log(wordIndex);
 
+    // console.log(isBlured);
+
     return (
-        <div className="min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 ">
+        <div className="min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative">
             <div
-                className="text-gray-400 text-3xl max-w-3xl focus:outline-none"
+                className={`text-gray-400 text-3xl max-w-3xl focus:outline-none ${
+                    isBlured ? 'blur-[2px] text-gray-500' : ''
+                }`}
                 tabIndex={0}
-                onKeyDown={handleKeyDown}
                 ref={divRef}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                onFocus={handleFocus}
             >
                 {resultList.map((item, index) => (
                     <WordElement key={index} word={item} />
                 ))}
 
-                <WordElement word={currentWord} idx={currentCharIndex} />
+                <WordElement
+                    word={currentWord}
+                    idx={currentCharIndex}
+                    isBlured={isBlured}
+                />
 
                 {leftList.map((item, index) => (
                     <WordElement key={index} word={item} />
@@ -138,7 +157,7 @@ export const SecondMonkey = () => {
                     className="text-white border p-2"
                     onClick={handleRestart}
                 >
-                    {isStarted ? 'Заново' : 'Еще'}
+                    {isStarted ? 'Заново' : 'Другой текст'}
                 </button>
             </div>
         </div>
