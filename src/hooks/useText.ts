@@ -1,19 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
 import { wordObjType } from '../components/SecondMonkey';
 
+function formatLetter(givenLetter: string) {
+    if (givenLetter === 'ё') {
+        return 'е';
+    }
+    if (givenLetter === 'Ё') {
+        return 'Е';
+    }
+    if (givenLetter === '—') {
+        return '-';
+    }
+    return givenLetter;
+}
+
 export const useText = (text: string) => {
-    const wordList = text.split(' ').map((letter) => {
-        if (letter.toLocaleLowerCase() === 'ё') {
-            return 'е';
-        } else if (letter.toUpperCase() === 'Ё') {
-            return 'Е';
-        } else {
-            return letter;
-        }
-    });
+    const wordList = text.split(' ');
+
     const charList = wordList.map((word) =>
         word.split('').map((char) => {
-            const newObj: wordObjType = { text: char, correct: null };
+            const newObj: wordObjType = {
+                text: formatLetter(char),
+                correct: null,
+            };
             return newObj;
         })
     );
@@ -78,6 +87,12 @@ export const useText = (text: string) => {
         setCurrentWord(newWord);
     };
 
+    const restartWord = () => {
+        setCurrentWord(charList[0]);
+        currentWordIndexRef.current = 0;
+        setResultList([]);
+    };
+
     // useEffect(() => {
     //     setCurrentWord(charList[currentWordIndexRef.current]);
     // }, [currentWordIndexRef.current]);
@@ -89,9 +104,10 @@ export const useText = (text: string) => {
         resultList,
         currentWord,
         leftList,
+        wordIndex: currentWordIndexRef.current,
         nextWord,
         changeAddWord,
         chageDeleteWord,
-        wordIndex: currentWordIndexRef.current,
+        restartWord,
     };
 };

@@ -2,8 +2,8 @@ import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
 import { WordElement } from './WordElement';
 
-const longExample =
-    'Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 ';
+// const longExample =
+//     'Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 ';
 
 export type wordObjType = {
     text: string;
@@ -22,9 +22,11 @@ type ResponseJSONType = {
 };
 
 export const SecondMonkey = () => {
-    const divRef = useRef<HTMLDivElement>(null);
     const [mainText, setMainText] = useState('');
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
+    const [isStarted, setIsStarted] = useState(false);
+
+    const divRef = useRef<HTMLDivElement>(null);
 
     const {
         currentWord,
@@ -32,17 +34,40 @@ export const SecondMonkey = () => {
         resultList,
         leftList,
         nextWord,
+        restartWord,
         changeAddWord,
         chageDeleteWord,
     } = useText(mainText);
+
+    const fetchText2 = async (url: string): Promise<ResponseJSONType> => {
+        const response = await fetch(url);
+        return await response.json();
+    };
+
+    const handleRestart = async () => {
+        const result = await fetchText2(BASE_URL + PARAMS);
+
+        setMainText(result.text);
+
+        setCurrentCharIndex(0);
+        restartWord();
+        focusOnText();
+
+        setIsStarted(false);
+    };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         const code = event.code;
         const key = event.key;
 
+        if (!isStarted) setIsStarted(true);
+
         if (code === 'Space') {
             if (currentWord.some((letter) => letter.correct === null)) return;
-            if (wordIndex === mainText.split(' ').length - 1) return;
+            if (wordIndex === mainText.split(' ').length - 1) {
+                handleRestart();
+                return;
+            }
             nextWord();
             setCurrentCharIndex(0);
         } else if (code === 'Backspace') {
@@ -55,10 +80,14 @@ export const SecondMonkey = () => {
         }
     };
 
-    useEffect(() => {
+    const focusOnText = () => {
         if (!divRef.current) return;
 
         divRef.current.focus();
+    };
+
+    useEffect(() => {
+        focusOnText();
     }, []);
 
     useEffect(() => {
@@ -87,7 +116,7 @@ export const SecondMonkey = () => {
     // console.log(wordIndex);
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-green-900 ">
+        <div className="min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 ">
             <div
                 className="text-gray-400 text-3xl max-w-3xl focus:outline-none"
                 tabIndex={0}
@@ -103,6 +132,14 @@ export const SecondMonkey = () => {
                 {leftList.map((item, index) => (
                     <WordElement key={index} word={item} />
                 ))}
+            </div>
+            <div>
+                <button
+                    className="text-white border p-2"
+                    onClick={handleRestart}
+                >
+                    {isStarted ? 'Заново' : 'Еще'}
+                </button>
             </div>
         </div>
     );
