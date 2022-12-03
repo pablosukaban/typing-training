@@ -1,59 +1,30 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
+import { WordElement } from './WordElement';
 
-const example = 'Немного здравого смысла';
+const longExample =
+    'Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 ';
 
 export type wordObjType = {
     text: string;
     correct: boolean | null;
 };
 
-type CharElementProps = {
-    char: string;
-    isActive: boolean;
-    correct: boolean | null;
-};
+const BASE_URL = 'https://fish-text.ru/';
+const FORMAT = 'json';
+const NUMBER = 1;
+const PARAMS = `get?format=${FORMAT}&number=${NUMBER}`;
 
-const CharElement = ({ char, correct, isActive }: CharElementProps) => {
-    let color = '';
-    if (correct === null) {
-        color = '';
-    } else if (correct === true) {
-        color = 'text-white';
-    } else {
-        color = 'text-red-300';
-    }
-    return (
-        <span className={`${color} ${isActive ? 'activeLetter' : ''}`}>
-            {char}
-        </span>
-    );
-};
-
-type WordElementProps = {
-    word: wordObjType[];
-    idx?: number;
-};
-
-const WordElement = ({ word, idx }: WordElementProps) => {
-    return (
-        <span>
-            {word.map((item, index) => (
-                <CharElement
-                    char={item.text}
-                    correct={item.correct}
-                    key={index}
-                    isActive={idx === index}
-                />
-            ))}{' '}
-        </span>
-    );
+type ResponseJSONType = {
+    status: string;
+    text: string;
+    errorCode?: string;
 };
 
 export const SecondMonkey = () => {
     const divRef = useRef<HTMLDivElement>(null);
+    const [mainText, setMainText] = useState('');
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
-    const [isStrictMode, setIsStrictMode] = useState(true);
 
     const {
         currentWord,
@@ -63,7 +34,7 @@ export const SecondMonkey = () => {
         nextWord,
         changeAddWord,
         chageDeleteWord,
-    } = useText(example, isStrictMode);
+    } = useText(mainText);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         const code = event.code;
@@ -71,7 +42,7 @@ export const SecondMonkey = () => {
 
         if (code === 'Space') {
             if (currentWord.some((letter) => letter.correct === null)) return;
-            if (wordIndex === example.split(' ').length - 1) return;
+            if (wordIndex === mainText.split(' ').length - 1) return;
             nextWord();
             setCurrentCharIndex(0);
         } else if (code === 'Backspace') {
@@ -90,10 +61,27 @@ export const SecondMonkey = () => {
         divRef.current.focus();
     }, []);
 
-    console.log(currentCharIndex);
+    useEffect(() => {
+        let ignore = false;
 
-    // console.log(resultList);
-    // console.log(currentWord);
+        const fetchText = async (url: string) => {
+            const response = await fetch(url);
+            const json: ResponseJSONType = await response.json();
+
+            if (!ignore) {
+                setMainText(json.text);
+            }
+        };
+
+        fetchText(BASE_URL + PARAMS);
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
+
+    // console.log('result', resultList);
+    // console.log('cur', currentWord);
     // console.log(leftList);
 
     // console.log(wordIndex);
@@ -101,7 +89,7 @@ export const SecondMonkey = () => {
     return (
         <div className="min-h-screen flex justify-center items-center bg-green-900 ">
             <div
-                className="text-gray-400 text-3xl max-w-6xl focus:outline-none"
+                className="text-gray-400 text-3xl max-w-3xl focus:outline-none"
                 tabIndex={0}
                 onKeyDown={handleKeyDown}
                 ref={divRef}
@@ -109,7 +97,9 @@ export const SecondMonkey = () => {
                 {resultList.map((item, index) => (
                     <WordElement key={index} word={item} />
                 ))}
+
                 <WordElement word={currentWord} idx={currentCharIndex} />
+
                 {leftList.map((item, index) => (
                     <WordElement key={index} word={item} />
                 ))}
