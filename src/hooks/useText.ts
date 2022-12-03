@@ -1,19 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { wordObjType } from '../components/SecondMonkey';
 
-function formatLetter(givenLetter: string) {
-    if (givenLetter === 'ё') {
-        return 'е';
-    }
-    if (givenLetter === 'Ё') {
-        return 'Е';
-    }
-    if (givenLetter === '—') {
-        return '-';
-    }
-    return givenLetter;
-}
-
 export const useText = (text: string) => {
     const wordList = text.split(' ');
 
@@ -27,7 +14,6 @@ export const useText = (text: string) => {
         })
     );
 
-    // const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const currentWordIndexRef = useRef(0);
     const [currentWord, setCurrentWord] = useState<wordObjType[]>([]);
     const [resultList, setResultList] = useState<wordObjType[][]>([]);
@@ -39,29 +25,12 @@ export const useText = (text: string) => {
     }, [text]);
 
     const nextWord = () => {
-        // if (isStrictMode === true) {
-        //     if (
-        //         currentWord.filter((item) => item.correct).length ===
-        //         currentWord.length
-        //     ) {
-        //         setResultList((prev) => [...prev, currentWord]);
-        //         currentWordIndexRef.current += 1;
-        //         setCurrentWord(charList[currentWordIndexRef.current]);
-        //     } else {
-        //         return;
-        //     }
-        // } else {
-        //     setResultList((prev) => [...prev, currentWord]);
-        //     currentWordIndexRef.current += 1;
-        //     setCurrentWord(charList[currentWordIndexRef.current]);
-        // }
         setResultList((prev) => [...prev, currentWord]);
         currentWordIndexRef.current += 1;
         setCurrentWord(charList[currentWordIndexRef.current]);
     };
 
     const changeAddWord = (givenChar: string, idx: number) => {
-        // if (idx > currentWord.length) return;
         const newWord = currentWord.map((item) => {
             if (currentWord.indexOf(item) === idx) {
                 if (item.text === givenChar) {
@@ -93,12 +62,6 @@ export const useText = (text: string) => {
         setResultList([]);
     };
 
-    // useEffect(() => {
-    //     setCurrentWord(charList[currentWordIndexRef.current]);
-    // }, [currentWordIndexRef.current]);
-
-    // if (currentWord.length === 0) return;
-
     return {
         isError: false,
         resultList,
@@ -111,3 +74,16 @@ export const useText = (text: string) => {
         restartWord,
     };
 };
+
+function formatLetter(givenLetter: string) {
+    if (givenLetter === 'ё') {
+        return 'е';
+    }
+    if (givenLetter === 'Ё') {
+        return 'Е';
+    }
+    if (givenLetter === '—') {
+        return '-';
+    }
+    return givenLetter;
+}
