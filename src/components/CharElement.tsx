@@ -16,7 +16,7 @@ export const CharElement = ({ char, correct, isActive }: CharElementProps) => {
         color = 'text-red-300';
     }
     return (
-        <span className={`${color} ${isActive ? 'activeLetter' : ''} `}>
+        <span className={`${color} ${isActive ? 'activeLetter' : ''}`}>
             {char}
         </span>
     );

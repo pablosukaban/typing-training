@@ -127,9 +127,9 @@ export const SecondMonkey = () => {
     // console.log(isBlured);
 
     return (
-        <div className="min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative">
+        <div className='min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative'>
             <div
-                className={`text-gray-400 text-3xl max-w-3xl focus:outline-none ${
+                className={`flex flex-wrap text-gray-400 text-3xl max-w-3xl gap-1 focus:outline-none ${
                     isBlured ? 'blur-[2px] text-gray-500' : ''
                 }`}
                 tabIndex={0}
@@ -154,7 +154,7 @@ export const SecondMonkey = () => {
             </div>
             <div>
                 <button
-                    className="text-white border p-2"
+                    className='text-white border p-2'
                     onClick={handleRestart}
                 >
                     {isStarted ? 'Заново' : 'Другой текст'}
