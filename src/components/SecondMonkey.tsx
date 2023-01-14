@@ -1,9 +1,11 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
-import { WordElement } from './WordElement';
+import { ParaElement } from './ParaElement';
 
 // const longExample =
 //     'Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 ';
+
+// какой нить параграфКомпонент, в который все слова передавать и он сам будет отслеживать че выводить, нужно по идее просто очищать resultList, мб отслеживать высоту
 
 export type wordObjType = {
     text: string;
@@ -25,7 +27,6 @@ export const SecondMonkey = () => {
     const [mainText, setMainText] = useState('');
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
     const [isStarted, setIsStarted] = useState(false);
-    const [isBlured, setIsBlured] = useState(false);
 
     const divRef = useRef<HTMLDivElement>(null);
 
@@ -80,15 +81,6 @@ export const SecondMonkey = () => {
         }
     };
 
-    const handleBlur = () => {
-        setIsBlured(true);
-    };
-
-    const handleFocus = () => {
-        setIsBlured(false);
-        focusOnText();
-    };
-
     const focusOnText = () => {
         if (!divRef.current) return;
 
@@ -118,40 +110,17 @@ export const SecondMonkey = () => {
         };
     }, []);
 
-    // console.log('result', resultList);
-    // console.log('cur', currentWord);
-    // console.log(leftList);
-
-    // console.log(wordIndex);
-
-    // console.log(isBlured);
-
     return (
         <div className='min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative'>
-            <div
-                className={`flex flex-wrap text-gray-400 text-3xl max-w-3xl gap-1 focus:outline-none ${
-                    isBlured ? 'blur-[2px] text-gray-500' : ''
-                }`}
-                tabIndex={0}
-                ref={divRef}
-                onKeyDown={handleKeyDown}
-                onBlur={handleBlur}
-                onFocus={handleFocus}
-            >
-                {resultList.map((item, index) => (
-                    <WordElement key={index} word={item} />
-                ))}
-
-                <WordElement
-                    word={currentWord}
-                    idx={currentCharIndex}
-                    isBlured={isBlured}
-                />
-
-                {leftList.map((item, index) => (
-                    <WordElement key={index} word={item} />
-                ))}
-            </div>
+            <ParaElement
+                currentWord={currentWord}
+                resultList={resultList}
+                leftList={leftList}
+                currentCharIndex={currentCharIndex}
+                divRef={divRef}
+                focusOnText={focusOnText}
+                handleKeyDown={handleKeyDown}
+            />
             <div>
                 <button
                     className='text-white border p-2'
