@@ -2,20 +2,23 @@ import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
 import { ParaElement } from './ParaElement';
 
-// const longExample =
-//     'Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 Немного здравого смысла не помешает прям щас 123 435 ';
-
 // какой нить параграфКомпонент, в который все слова передавать и он сам будет отслеживать че выводить, нужно по идее просто очищать resultList, мб отслеживать высоту
+
+// если currentWord координата y на третьей строке, удалять первую строку, тем самым вверх уезжает
 
 export type wordObjType = {
     text: string;
     correct: boolean | null;
 };
 
+type FormatType = 'json' | 'html';
+type FetchTextType = 'sentence' | 'paragraph' | 'title';
+
 const BASE_URL = 'https://fish-text.ru/';
-const FORMAT = 'json';
+const FORMAT: FormatType = 'json';
 const NUMBER = 1;
-const PARAMS = `get?format=${FORMAT}&number=${NUMBER}`;
+const TYPE: FetchTextType = 'title';
+const PARAMS = `get?format=${FORMAT}&number=${NUMBER}&type=${TYPE}`;
 
 type ResponseJSONType = {
     status: string;
@@ -28,7 +31,14 @@ export const SecondMonkey = () => {
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
     const [isStarted, setIsStarted] = useState(false);
 
-    const divRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const [elements, setElements] = useState<HTMLElement[]>([]);
+
+    if (containerRef.current) {
+        // const parent = containerRef.current;
+        // console.log('block', block.getBoundingClientRect());
+    }
 
     const {
         currentWord,
@@ -46,6 +56,12 @@ export const SecondMonkey = () => {
         return await response.json();
     };
 
+    const focusOnText = () => {
+        if (!containerRef.current) return;
+
+        containerRef.current.focus();
+    };
+
     const handleRestart = async () => {
         const result = await fetchText2(BASE_URL + PARAMS);
 
@@ -56,6 +72,16 @@ export const SecondMonkey = () => {
         focusOnText();
 
         setIsStarted(false);
+    };
+
+    const handleWordClick = (element: HTMLElement) => {
+        // console.log(element.innerText);
+        setElements((prev) => [...prev, element]);
+    };
+
+    const moveLine = () => {
+        const elem = elements[0];
+        console.log(elem.getBoundingClientRect());
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -70,6 +96,7 @@ export const SecondMonkey = () => {
             }
             nextWord();
             setCurrentCharIndex(0);
+            moveLine();
         } else if (code === 'Backspace') {
             chageDeleteWord(currentCharIndex - 1);
             setCurrentCharIndex((prev) => (prev === 0 ? prev : prev - 1));
@@ -79,12 +106,6 @@ export const SecondMonkey = () => {
             changeAddWord(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
         }
-    };
-
-    const focusOnText = () => {
-        if (!divRef.current) return;
-
-        divRef.current.focus();
     };
 
     useEffect(() => {
@@ -99,6 +120,7 @@ export const SecondMonkey = () => {
             const json: ResponseJSONType = await response.json();
 
             if (!ignore) {
+                console.log(json.text);
                 setMainText(json.text);
             }
         };
@@ -111,15 +133,19 @@ export const SecondMonkey = () => {
     }, []);
 
     return (
-        <div className='min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative'>
+        <div
+            className='min-h-screen flex flex-col gap-4 justify-center items-center bg-green-900 relative'
+            ref={containerRef}
+        >
             <ParaElement
                 currentWord={currentWord}
                 resultList={resultList}
                 leftList={leftList}
                 currentCharIndex={currentCharIndex}
-                divRef={divRef}
+                containerRef={containerRef}
                 focusOnText={focusOnText}
                 handleKeyDown={handleKeyDown}
+                handleWordClick={handleWordClick}
             />
             <div>
                 <button
@@ -128,6 +154,7 @@ export const SecondMonkey = () => {
                 >
                     {isStarted ? 'Заново' : 'Другой текст'}
                 </button>
+                <button onClick={() => console.log(elements)}>Click</button>
             </div>
         </div>
     );

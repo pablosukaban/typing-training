@@ -1,4 +1,4 @@
-import React, { useRef, useState, KeyboardEvent, RefObject } from 'react';
+import React, { useState, KeyboardEvent, RefObject } from 'react';
 import { wordObjType } from './SecondMonkey';
 import { WordElement } from './WordElement';
 
@@ -7,20 +7,22 @@ type ParaElementProps = {
     leftList: wordObjType[][];
     currentWord: wordObjType[];
     currentCharIndex: number;
-    divRef: RefObject<HTMLDivElement>;
+    containerRef: RefObject<HTMLDivElement>;
     focusOnText: () => void;
     handleKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+    handleWordClick: (element: HTMLElement) => void;
 };
 
-export const ParaElement: React.FC<ParaElementProps> = ({
+export const ParaElement = ({
     resultList,
     currentWord,
     leftList,
     currentCharIndex,
-    divRef,
+    containerRef,
     focusOnText,
     handleKeyDown,
-}) => {
+    handleWordClick,
+}: ParaElementProps) => {
     const [isBlured, setIsBlured] = useState(false);
 
     const handleBlur = () => {
@@ -34,27 +36,37 @@ export const ParaElement: React.FC<ParaElementProps> = ({
 
     return (
         <div
-            className={`flex flex-wrap text-gray-400 text-3xl max-w-3xl gap-1 focus:outline-none ${
-                isBlured ? 'blur-[2px] text-gray-500' : ''
+            className={`flex flex-wrap text-3xl px-16 gap-2 max-h-[124px] focus:outline-none overflow-hidden  ${
+                isBlured ? 'blured-text' : 'visible-text'
             }`}
             tabIndex={0}
-            ref={divRef}
+            ref={containerRef}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
             onFocus={handleFocus}
         >
             {resultList.map((item, index) => (
-                <WordElement key={index} word={item} />
+                <WordElement
+                    key={index}
+                    word={item}
+                    handleWordClick={handleWordClick}
+                />
             ))}
 
             <WordElement
                 word={currentWord}
                 idx={currentCharIndex}
                 isBlured={isBlured}
+                isCurrent={true}
+                handleWordClick={handleWordClick}
             />
 
             {leftList.map((item, index) => (
-                <WordElement key={index} word={item} />
+                <WordElement
+                    key={index}
+                    word={item}
+                    handleWordClick={handleWordClick}
+                />
             ))}
         </div>
     );

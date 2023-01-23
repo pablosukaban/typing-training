@@ -16,7 +16,7 @@
     background-color: gold;
     transform: translate(0, -50%);
 
-    animation: blink 1s ease-in-out infinite;
+    animation: blink 1.2s ease-in-out infinite;
 }
 
 @keyframes blink {
@@ -26,8 +26,37 @@
     50% {
         opacity: 1;
     }
-
     100% {
         opacity: 0;
+    }
+}
+
+.blured-text {
+    animation: blur 1ms linear forwards;
+}
+
+@keyframes blur {
+    0% {
+        filter: blur(0);
+        color: rgb(156 163 175);
+    }
+    100% {
+        filter: blur(2px);
+        color: rgb(107 114 128);
+    }
+}
+
+.visible-text {
+    animation: unblur 1ms linear forwards;
+}
+
+@keyframes unblur {
+    0% {
+        filter: blur(2px);
+        color: rgb(107 114 128);
+    }
+    100% {
+        filter: blur(0);
+        color: rgb(156 163 175);
     }
 }
