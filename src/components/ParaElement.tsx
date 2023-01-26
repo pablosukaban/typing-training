@@ -10,7 +10,6 @@ type ParaElementProps = {
     containerRef: RefObject<HTMLDivElement>;
     focusOnText: () => void;
     handleKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
-    handleWordClick: (element: HTMLElement) => void;
 };
 
 export const ParaElement = ({
@@ -21,7 +20,6 @@ export const ParaElement = ({
     containerRef,
     focusOnText,
     handleKeyDown,
-    handleWordClick,
 }: ParaElementProps) => {
     const [isBlured, setIsBlured] = useState(false);
 
@@ -46,11 +44,7 @@ export const ParaElement = ({
             onFocus={handleFocus}
         >
             {resultList.map((item, index) => (
-                <WordElement
-                    key={index}
-                    word={item}
-                    handleWordClick={handleWordClick}
-                />
+                <WordElement key={index} word={item} />
             ))}
 
             <WordElement
@@ -58,15 +52,10 @@ export const ParaElement = ({
                 idx={currentCharIndex}
                 isBlured={isBlured}
                 isCurrent={true}
-                handleWordClick={handleWordClick}
             />
 
             {leftList.map((item, index) => (
-                <WordElement
-                    key={index}
-                    word={item}
-                    handleWordClick={handleWordClick}
-                />
+                <WordElement key={index} word={item} />
             ))}
         </div>
     );

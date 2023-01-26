@@ -1,5 +1,5 @@
 import { wordObjType } from './SecondMonkey';
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { RefObject, useRef } from 'react';
 import { CharElement } from './CharElement';
 
 type WordElementProps = {
@@ -8,7 +8,6 @@ type WordElementProps = {
     isBlured?: boolean;
     isCurrent?: boolean;
     containerRef?: RefObject<HTMLDivElement>;
-    handleWordClick: (element: HTMLElement) => void;
 };
 
 export const WordElement = ({
@@ -17,7 +16,6 @@ export const WordElement = ({
     isBlured,
     isCurrent,
     containerRef,
-    handleWordClick,
 }: WordElementProps) => {
     const wordRef = useRef<HTMLSpanElement>(null);
 
