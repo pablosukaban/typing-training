@@ -4,8 +4,6 @@ import { ParaElement } from './ParaElement';
 
 // какой нить параграфКомпонент, в который все слова передавать и он сам будет отслеживать че выводить, нужно по идее просто очищать resultList, мб отслеживать высоту
 
-// если currentWord координата y на третьей строке, удалять первую строку, тем самым вверх уезжает
-
 export type wordObjType = {
     text: string;
     correct: boolean | null;
@@ -17,7 +15,7 @@ type FetchTextType = 'sentence' | 'paragraph' | 'title';
 const BASE_URL = 'https://fish-text.ru/';
 const FORMAT: FormatType = 'json';
 const NUMBER = 1;
-const TYPE: FetchTextType = 'title';
+const TYPE: FetchTextType = 'sentence';
 const PARAMS = `get?format=${FORMAT}&number=${NUMBER}&type=${TYPE}`;
 
 type ResponseJSONType = {
@@ -72,11 +70,6 @@ export const SecondMonkey = () => {
         focusOnText();
 
         setIsStarted(false);
-    };
-
-    const handleWordClick = (element: HTMLElement) => {
-        // console.log(element.innerText);
-        // setElements((prev) => [...prev, element]);
     };
 
     const moveLine = () => {
@@ -146,7 +139,6 @@ export const SecondMonkey = () => {
                 containerRef={containerRef}
                 focusOnText={focusOnText}
                 handleKeyDown={handleKeyDown}
-                handleWordClick={handleWordClick}
             />
             <div>
                 <button
@@ -155,7 +147,6 @@ export const SecondMonkey = () => {
                 >
                     {isStarted ? 'Заново' : 'Другой текст'}
                 </button>
-                {/* <button onClick={() => console.log(elements)}>Click</button> */}
             </div>
         </div>
     );
