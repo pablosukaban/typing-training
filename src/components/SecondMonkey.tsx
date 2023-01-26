@@ -1,13 +1,7 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useText } from '../hooks/useText';
+import { ResponseJSONType } from '../types';
 import { ParaElement } from './ParaElement';
-
-// какой нить параграфКомпонент, в который все слова передавать и он сам будет отслеживать че выводить, нужно по идее просто очищать resultList, мб отслеживать высоту
-
-export type wordObjType = {
-    text: string;
-    correct: boolean | null;
-};
 
 type FormatType = 'json' | 'html';
 type FetchTextType = 'sentence' | 'paragraph' | 'title';
@@ -15,14 +9,10 @@ type FetchTextType = 'sentence' | 'paragraph' | 'title';
 const BASE_URL = 'https://fish-text.ru/';
 const FORMAT: FormatType = 'json';
 const NUMBER = 1;
-const TYPE: FetchTextType = 'sentence';
+const TYPE: FetchTextType = 'title';
 const PARAMS = `get?format=${FORMAT}&number=${NUMBER}&type=${TYPE}`;
 
-type ResponseJSONType = {
-    status: string;
-    text: string;
-    errorCode?: string;
-};
+const testText = 'word1 word2 word3 word4 word5';
 
 export const SecondMonkey = () => {
     const [mainText, setMainText] = useState('');
@@ -30,13 +20,6 @@ export const SecondMonkey = () => {
     const [isStarted, setIsStarted] = useState(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
-
-    // const [elements, setElements] = useState<HTMLElement[]>([]);
-
-    if (containerRef.current) {
-        // const parent = containerRef.current;
-        // console.log('block', block.getBoundingClientRect());
-    }
 
     const {
         currentWord,
@@ -48,6 +31,17 @@ export const SecondMonkey = () => {
         nextChar,
         prevChar,
     } = useText(mainText);
+
+    const wordCount = mainText.split(' ').length;
+
+    // if (wordCount * 2 === elements.length) {
+    //     console.log('if');
+    //     const newArr = [...elements];
+    //     newArr.splice(wordCount);
+    //     setElements(newArr);
+    // }
+
+    // console.log('wordCount', wordCount);
 
     const fetchText2 = async (url: string): Promise<ResponseJSONType> => {
         const response = await fetch(url);
@@ -72,30 +66,25 @@ export const SecondMonkey = () => {
         setIsStarted(false);
     };
 
-    const moveLine = () => {
-        // const elem = elements[0];
-        // console.log(elem.getBoundingClientRect());
-    };
-
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         const code = event.code;
         const key = event.key;
 
         if (code === 'Space') {
-            if (currentWord.some((letter) => letter.correct === null)) return;
+            if (currentWord.word.some((letter) => letter.correct === null))
+                return;
             if (wordIndex === mainText.split(' ').length - 1) {
                 handleRestart();
                 return;
             }
             nextWord();
             setCurrentCharIndex(0);
-            moveLine();
         } else if (code === 'Backspace') {
             prevChar(currentCharIndex - 1);
             setCurrentCharIndex((prev) => (prev === 0 ? prev : prev - 1));
         } else if (key.length === 1 && key.match(/[а-я А-Я ,.?!"-;']/i)) {
             if (!isStarted) setIsStarted(true);
-            if (currentCharIndex >= currentWord.length) return;
+            if (currentCharIndex >= currentWord.word.length) return;
 
             nextChar(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
@@ -125,6 +114,13 @@ export const SecondMonkey = () => {
             ignore = true;
         };
     }, []);
+
+    // useEffect(() => {
+    //     const coordsList = elements.map((element) =>
+    //         element.getBoundingClientRect()
+    //     );
+    //     console.log(coordsList);
+    // }, [elements]);
 
     return (
         <div

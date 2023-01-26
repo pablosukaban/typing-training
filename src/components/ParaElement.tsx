@@ -1,11 +1,11 @@
 import React, { useState, KeyboardEvent, RefObject } from 'react';
-import { wordObjType } from './SecondMonkey';
+import { WordObjType } from '../types';
 import { WordElement } from './WordElement';
 
 type ParaElementProps = {
-    resultList: wordObjType[][];
-    leftList: wordObjType[][];
-    currentWord: wordObjType[];
+    resultList: WordObjType[];
+    leftList: WordObjType[];
+    currentWord: WordObjType;
     currentCharIndex: number;
     containerRef: RefObject<HTMLDivElement>;
     focusOnText: () => void;
@@ -43,19 +43,19 @@ export const ParaElement = ({
             onBlur={handleBlur}
             onFocus={handleFocus}
         >
-            {resultList.map((item, index) => (
-                <WordElement key={index} word={item} />
+            {resultList.map((item) => (
+                <WordElement key={item.id} word={item.word} />
             ))}
 
             <WordElement
-                word={currentWord}
+                word={currentWord.word}
                 idx={currentCharIndex}
                 isBlured={isBlured}
                 isCurrent={true}
             />
 
             {leftList.map((item, index) => (
-                <WordElement key={index} word={item} />
+                <WordElement key={index} word={item.word} />
             ))}
         </div>
     );

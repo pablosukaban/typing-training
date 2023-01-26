@@ -1,22 +1,16 @@
-import { wordObjType } from './SecondMonkey';
-import React, { RefObject, useRef } from 'react';
+import React, { RefObject, useEffect, useRef } from 'react';
+import { LetterObjType } from '../types';
 import { CharElement } from './CharElement';
 
 type WordElementProps = {
-    word: wordObjType[];
+    word: LetterObjType[];
     idx?: number;
     isBlured?: boolean;
     isCurrent?: boolean;
     containerRef?: RefObject<HTMLDivElement>;
 };
 
-export const WordElement = ({
-    word,
-    idx,
-    isBlured,
-    isCurrent,
-    containerRef,
-}: WordElementProps) => {
+export const WordElement = ({ word, idx, isBlured }: WordElementProps) => {
     const wordRef = useRef<HTMLSpanElement>(null);
 
     // if (isCurrent && wordRef.current) {
@@ -34,11 +28,18 @@ export const WordElement = ({
     //     handleWordClick(wordRef.current);
     // }
 
+    useEffect(() => {
+        if (wordRef.current) {
+            // const newSpanObj: SpanObjType = { idx: idx, span: wordRef.current };
+            // addHtmlWord(newSpanObj);
+        }
+    }, []);
+
     return (
         <span ref={wordRef}>
             {word.map((item, index) => (
                 <CharElement
-                    char={item.text}
+                    char={item.letter}
                     correct={item.correct}
                     key={index}
                     isActive={idx === index && isBlured === false}

@@ -1,22 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
-import { wordObjType } from '../components/SecondMonkey';
+import { LetterObjType, WordObjType } from '../types';
 
 export const useText = (text: string) => {
     const wordList = text.split(' ');
 
-    const charList = wordList.map((word) =>
-        word.split('').map((char) => {
-            const newObj: wordObjType = {
-                text: formatLetter(char),
+    const charList = wordList.map((word) => {
+        const typedWord = word.split('').map((char) => {
+            const newObj: LetterObjType = {
+                letter: formatLetter(char),
                 correct: null,
             };
             return newObj;
-        })
-    );
+        });
+
+        return { id: crypto.randomUUID(), word: typedWord } as WordObjType;
+    });
 
     const currentWordIndexRef = useRef(0);
-    const [currentWord, setCurrentWord] = useState<wordObjType[]>([]);
-    const [resultList, setResultList] = useState<wordObjType[][]>([]);
+    const [currentWord, setCurrentWord] = useState<WordObjType>({
+        id: '',
+        word: [],
+    });
+    const [resultList, setResultList] = useState<WordObjType[]>([]);
 
     const leftList = charList.slice(currentWordIndexRef.current + 1);
 
@@ -31,29 +36,29 @@ export const useText = (text: string) => {
     };
 
     const nextChar = (givenChar: string, idx: number) => {
-        const newWord = currentWord.map((item) => {
-            if (currentWord.indexOf(item) === idx) {
-                if (item.text === givenChar) {
-                    return { text: item.text, correct: true } as wordObjType;
+        const newWord = currentWord.word.map((item) => {
+            if (currentWord.word.indexOf(item) === idx) {
+                if (item.letter === givenChar) {
+                    return { ...item, correct: true } as LetterObjType;
                 } else {
-                    return { text: item.text, correct: false } as wordObjType;
+                    return { ...item, correct: false } as LetterObjType;
                 }
             } else {
                 return item;
             }
         });
-        setCurrentWord(newWord);
+        setCurrentWord((prev) => ({ ...prev, word: newWord }));
     };
 
     const prevChar = (idx: number) => {
-        const newWord = currentWord.map((item) => {
-            if (currentWord.indexOf(item) === idx) {
-                return { text: item.text, correct: null } as wordObjType;
+        const newWord = currentWord.word.map((item) => {
+            if (currentWord.word.indexOf(item) === idx) {
+                return { ...item, correct: null } as LetterObjType;
             } else {
                 return item;
             }
         });
-        setCurrentWord(newWord);
+        setCurrentWord((prev) => ({ ...prev, word: newWord }));
     };
 
     const resetCurrentWord = () => {
