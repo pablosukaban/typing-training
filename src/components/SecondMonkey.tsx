@@ -33,7 +33,7 @@ export const SecondMonkey = () => {
 
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [elements, setElements] = useState<HTMLElement[]>([]);
+    // const [elements, setElements] = useState<HTMLElement[]>([]);
 
     if (containerRef.current) {
         // const parent = containerRef.current;
@@ -46,9 +46,9 @@ export const SecondMonkey = () => {
         resultList,
         leftList,
         nextWord,
-        restartWord,
-        changeAddWord,
-        chageDeleteWord,
+        resetCurrentWord,
+        nextChar,
+        prevChar,
     } = useText(mainText);
 
     const fetchText2 = async (url: string): Promise<ResponseJSONType> => {
@@ -68,7 +68,7 @@ export const SecondMonkey = () => {
         setMainText(result.text);
 
         setCurrentCharIndex(0);
-        restartWord();
+        resetCurrentWord();
         focusOnText();
 
         setIsStarted(false);
@@ -76,12 +76,12 @@ export const SecondMonkey = () => {
 
     const handleWordClick = (element: HTMLElement) => {
         // console.log(element.innerText);
-        setElements((prev) => [...prev, element]);
+        // setElements((prev) => [...prev, element]);
     };
 
     const moveLine = () => {
-        const elem = elements[0];
-        console.log(elem.getBoundingClientRect());
+        // const elem = elements[0];
+        // console.log(elem.getBoundingClientRect());
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -98,12 +98,13 @@ export const SecondMonkey = () => {
             setCurrentCharIndex(0);
             moveLine();
         } else if (code === 'Backspace') {
-            chageDeleteWord(currentCharIndex - 1);
+            prevChar(currentCharIndex - 1);
             setCurrentCharIndex((prev) => (prev === 0 ? prev : prev - 1));
         } else if (key.length === 1 && key.match(/[а-я А-Я ,.?!"-;']/i)) {
             if (!isStarted) setIsStarted(true);
             if (currentCharIndex >= currentWord.length) return;
-            changeAddWord(event.key, currentCharIndex);
+
+            nextChar(event.key, currentCharIndex);
             setCurrentCharIndex((prev) => prev + 1);
         }
     };
@@ -154,7 +155,7 @@ export const SecondMonkey = () => {
                 >
                     {isStarted ? 'Заново' : 'Другой текст'}
                 </button>
-                <button onClick={() => console.log(elements)}>Click</button>
+                {/* <button onClick={() => console.log(elements)}>Click</button> */}
             </div>
         </div>
     );

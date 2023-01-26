@@ -30,7 +30,7 @@ export const useText = (text: string) => {
         setCurrentWord(charList[currentWordIndexRef.current]);
     };
 
-    const changeAddWord = (givenChar: string, idx: number) => {
+    const nextChar = (givenChar: string, idx: number) => {
         const newWord = currentWord.map((item) => {
             if (currentWord.indexOf(item) === idx) {
                 if (item.text === givenChar) {
@@ -45,7 +45,7 @@ export const useText = (text: string) => {
         setCurrentWord(newWord);
     };
 
-    const chageDeleteWord = (idx: number) => {
+    const prevChar = (idx: number) => {
         const newWord = currentWord.map((item) => {
             if (currentWord.indexOf(item) === idx) {
                 return { text: item.text, correct: null } as wordObjType;
@@ -56,7 +56,7 @@ export const useText = (text: string) => {
         setCurrentWord(newWord);
     };
 
-    const restartWord = () => {
+    const resetCurrentWord = () => {
         setCurrentWord(charList[0]);
         currentWordIndexRef.current = 0;
         setResultList([]);
@@ -69,9 +69,9 @@ export const useText = (text: string) => {
         leftList,
         wordIndex: currentWordIndexRef.current,
         nextWord,
-        changeAddWord,
-        chageDeleteWord,
-        restartWord,
+        nextChar,
+        prevChar,
+        resetCurrentWord,
     };
 };
 
